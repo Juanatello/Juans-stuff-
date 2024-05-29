@@ -1,0 +1,29 @@
+def speech_recognition():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Say something...")
+        audio = r.listen(source>
+        print("You said: " + r.recognize_google(audio))
+    except sr.UnknownValueError:
+        print("Sorry, I didn't understand that.")
+    except sr.RequestError as e:
+        print("Could not request results from Google Speech Recognition service; {0}".format(e))
+  tts = gTTS(text=text, lang='en')
+    tts.save("output.mp3")
+    os.system("mpg321 output.mp3")
+
+def mobile_assistant():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Say something...")
+        audio = r.listen(source>
+        speech = r.recognize_google(audio)
+        print("You said: " + speech)
+        tokens = word_tokenize(speech)
+        print("Tokens: " + str(tokens))
+        text = "Hello, how can I assist you?"
+        speech_synthesis(text)
+    except sr.UnknownValueError:
+        print("Sorry, I didn't understand that.")
+    except sr.RequestError as e:
+        print("Could not request results from Google Speech Recognition service; {0}".format(e))
