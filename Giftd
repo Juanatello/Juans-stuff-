@@ -84,10 +84,12 @@ footer {
 <img src="C:\Users\juanquarles\OneDrive - Community Action of NorthEast Indiana, INC\Pictures\gifted image.PNG"style="float:left;width:230px;height:115px;">
 <h2 style="text-align:center;font-family:old english text MT;font-size:50px;height:100px">Gifted Creative Studios.</h2>
 
+
+ 
 <header>
 <div style="margin-left:25%;padding:1px 16px;height:1000px;">
 <h1> coming soon </h1>
-<div style="text-align:Left;height:120px;text-align:left;font-size:30px;padding:40px"><h2>&#9776</h2>
+<div style="text-align:Left;height:120px;text-align:left;font-size:30px;padding:40px"<h2>&#9776</h2>
 </header>
 <section>
   <nav>
@@ -110,7 +112,7 @@ footer {
 
   <article>
     <h1 style="font-family:Audiowide;font-size:20px">A Gifted Mission</h1>
-    <p style="font-family:just me again down here;font-size:30px"> Gifted is a Local Brand focused on motivating the masses to allow their full beings to be their source of life.</p>
+    <p style="font-family:just me again down here;font-size:30px"> Gifted is a Local Brand focused on motivating the masses to allow their full beings to be their source of life. /p>
     <p style="font-family:just me again down here;font-size:30px"> Our brand breathes life into the average creative. We are a way of life. As a art collective we champion creativity, innovation and an inspiring culture embracing enviorment. Additionally our studio offers Photography and videography for deeper dives into creativity</p>
   </article>
 </section>
