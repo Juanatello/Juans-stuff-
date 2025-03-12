@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Giftd</title>
+<title>CareField</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
@@ -15,7 +15,7 @@ body{
 
 
 header {
-  background-color: #cd0016;
+  background-color: #d8bfd8 ;
   padding: 5px;
   height:130px;
   font-size: 25px;
@@ -25,7 +25,7 @@ header {
 
 li a {
   display: striped;
-  color:#fa8072;
+  color:#e6e6fa;
   padding: 4px 10px;
   text-decoration: none;
 }
@@ -80,9 +80,10 @@ footer {
 
 </head>
 <body>
-<img src="C:\Users\juanquarles\OneDrive - Community Action of NorthEast Indiana, INC\Pictures\IMG_2594.PNG"style="float:right;width:230px;height:140px;">
-<img src="C:\Users\juanquarles\OneDrive - Community Action of NorthEast Indiana, INC\Pictures\gifted image.PNG"style="float:left;width:230px;height:115px;">
-<h2 style="text-align:center;font-family:old english text MT;font-size:50px;height:100px">Gifted Creative Studios.</h2>
+<h2></h2>
+<img src="Test pic.jpg" ;">
+<img src=>
+<h2 style="text-align:center;font-family:old english text MT;font-size:50px;height:100px">CareField.</h2>
 
 
  
@@ -94,24 +95,24 @@ footer {
 <section>
   <nav>
     <ul>
-      <li><a href="#;""target="_blank;"style="color:black">Womens collection</a></li>
+      <li><a href="#;""target="_blank;"style="color:black">Calendar</a></li>
 <br>
-      <li><a href="#;"style="color:black">Mens Colletion</a></li>
-<br>
-
-      <li><a href="#;"style="color:black">Summer Collection</a></li>
+      <li><a href="#;"style="color:black">Opportunities</a></li>
 <br>
 
-      <li><a href="#;"style="color:black">Photography Portfolio</a></li>
+      <li><a href="#;"style="color:black">Careers</a></li>
 <br>
-     <li><a href="#;"style="color:orange">Winter collection<a/><li>
+
+      <li><a href="#;"style="color:black">Mission</a></li>
+<br>
+     <li><a href="#;"style="color:orange">Charity<a/><li>
     </ul>
   </nav>
 <br> 
     <a href="#;style="color:yellow;text-align=right>padding:15x 25px;height:150px;'>
 
   <article>
-    <h1 style="font-family:Audiowide;font-size:20px">A Gifted Mission</h1>
+    <h1 style="font-family:Audiowide;font-size:20px">A Mission</h1>
     <p style="font-family:just me again down here;font-size:30px"> Gifted is a Local Brand focused on motivating the masses to allow their full beings to be their source of life. /p>
     <p style="font-family:just me again down here;font-size:30px"> Our brand breathes life into the average creative. We are a way of life. As a art collective we champion creativity, innovation and an inspiring culture embracing enviorment. Additionally our studio offers Photography and videography for deeper dives into creativity</p>
   </article>
@@ -121,11 +122,10 @@ style="floating right"
 
 <footer>
   <div style="margin-left:30%;padding:15px 25px;height:100px;">
-  <p style="font-size:10px;text-align:float">By Wallace "Dub" Nord and Devin V.</p>
+  <p style="font-size:10px;text-align:float">CEO: Xandria M. </p>
   <p> "always remember you have a GIFT dont waste it."<p>
   </div>
 </footer>
 
 </body>
 </html>
-
