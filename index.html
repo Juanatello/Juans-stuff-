@@ -80,10 +80,11 @@
     }
     #yes:hover { transform: translateY(-1px) scale(1.02); }
 
+    /* Your No button moves around, so it must be absolute */
     #no {
       background: #f1f5f9;
       color: #111827;
-      position: absolute; /* allows left/top to work when it moves */
+      position: absolute;
     }
 
     footer {
@@ -120,14 +121,8 @@
       from { transform: translateY(8px) scale(.98); opacity: 0; }
       to   { transform: translateY(0) scale(1); opacity: 1; }
     }
-    .gate h2 {
-      margin: 0 0 .25rem;
-      font-size: 1.25rem;
-    }
-    .gate p {
-      margin: 0 0 1rem;
-      color: var(--muted);
-    }
+    .gate h2 { margin: 0 0 .25rem; font-size: 1.25rem; }
+    .gate p { margin: 0 0 1rem; color: var(--muted); }
     .field {
       display: grid;
       grid-template-columns: 1fr auto;
@@ -154,11 +149,7 @@
       color: #fff;
       font-weight: 700;
     }
-    .msg {
-      min-height: 1.25rem;
-      margin-top: .5rem;
-      font-size: .95rem;
-    }
+    .msg { min-height: 1.25rem; margin-top: .5rem; font-size: .95rem; }
     .ok { color: var(--ok); }
     .err { color: var(--error); }
 
@@ -180,11 +171,12 @@
 
   <!-- Main content (hidden until password accepted) -->
   <div id="popup" role="dialog" aria-labelledby="title" aria-describedby="prompt" aria-hidden="true">
-    <h1 id="title">Hey Juan 👋</h1>
+    <h1 id="title">Hi Zombie:) </h1>
     <p id="prompt">Will you be my Valentine?</p>
 
     <div class="btns">
       <button id="yes" onclick="onYes()">Yes</button>
+      <!-- Your exact No button markup (fixed closing tag) -->
       <button id="no" onmouseover="moveNo()">No</button>
     </div>
   </div>
@@ -208,18 +200,16 @@
     /***************
      * Password Gate
      ***************/
-    const REQUIRED_PASS = 'Blahhh'; // <- your passcode (case-sensitive)
+    const REQUIRED_PASS = 'Blahhh'; // case-sensitive
 
     function unlock(e) {
       e.preventDefault();
       const inp = document.getElementById('pwd');
       const msg = document.getElementById('gate-msg');
-      const val = inp.value.trim();
 
-      if (val === REQUIRED_PASS) {
+      if (inp.value.trim() === REQUIRED_PASS) {
         msg.textContent = 'Access granted ♥';
         msg.className = 'msg ok';
-        // fade out gate, reveal content
         const gate = document.getElementById('gate');
         gate.style.transition = 'opacity .35s ease, visibility 0s .35s';
         gate.style.opacity = '0';
@@ -227,7 +217,6 @@
 
         const popup = document.getElementById('popup');
         popup.setAttribute('aria-hidden', 'false');
-        // show card
         requestAnimationFrame(() => popup.classList.add('show'));
       } else {
         msg.textContent = 'Oops, that passcode is not it.';
@@ -237,25 +226,20 @@
     }
 
     /*******************
-     * No Button Escape
+     * Your moveNo() — corrected & integrated
      *******************/
     function moveNo() {
+      // Make sure the button uses absolute positioning (so left/top works)
       const noBtn = document.getElementById('no');
       noBtn.style.position = 'absolute';
 
-      const maxLeft = Math.max(0, window.innerWidth  - noBtn.offsetWidth  - 24);
-      const maxTop  = Math.max(0, window.innerHeight - noBtn.offsetHeight - 24);
-
-      const left = Math.random() * maxLeft;
-      const top  = Math.random() * maxTop;
-
-      noBtn.style.left = `${left}px`;
-      noBtn.style.top  = `${top}px`;
+      // Random position anywhere in the viewport
+      noBtn.style.left = Math.random() * (window.innerWidth  - noBtn.offsetWidth)  + 'px';
+      noBtn.style.top  = Math.random() * (window.innerHeight - noBtn.offsetHeight) + 'px';
     }
 
     /****************
-     * Confetti Burst
-     * (tiny, dependency-free)
+     * Confetti Burst (dependency-free)
      ****************/
     const confettiCanvas = document.getElementById('confetti');
     const cfx = confettiCanvas.getContext('2d');
@@ -268,7 +252,7 @@
     }
     window.addEventListener('resize', sizeCanvas);
 
-    function spawnConfetti(x, y, count = 140) {
+    function spawnConfetti(x, y, count = 180) {
       for (let i = 0; i < count; i++) {
         confettiPieces.push({
           x, y,
@@ -306,13 +290,10 @@
     updateConfetti();
 
     function onYes() {
-      // Confetti at center of the card
       const rect = document.getElementById('popup').getBoundingClientRect();
       const x = rect.left + rect.width/2;
       const y = rect.top + rect.height/3;
-      spawnConfetti(x, y, 180);
-
-      // Cute confirmation
+      spawnConfetti(x, y, 200);
       setTimeout(() => alert('Yay! 💘 Can’t wait!'), 60);
     }
 
@@ -338,7 +319,6 @@
       };
     }
 
-    // Draw simple vector heart
     function drawHeart(ctx, x, y, size, rotation, color, alpha) {
       ctx.save();
       ctx.translate(x, y);
@@ -374,7 +354,6 @@
     updateHearts();
 
     window.addEventListener('mousemove', (e) => {
-      // Spawn a couple of hearts at the cursor
       hearts.push(heartParticle(e.clientX, e.clientY));
       if (Math.random() < 0.5) hearts.push(heartParticle(e.clientX, e.clientY));
     });
@@ -384,3 +363,4 @@
   </script>
 </body>
 </html>
+``
