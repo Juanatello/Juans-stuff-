@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zone V-Day</title>
+  <style>
+    :root {
+      --bg: #fff5f7;
+      --primary: #e63946;
+      --text: #1f2937;
+      --card: #ffffff;
+      --shadow: rgba(0,0,0,.12);
+      --muted: #6b7280;
+      --ok: #16a34a;
+      --error: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: grid;
+      place-items: center;
+      background: radial-gradient(1200px 600px at 70% -10%, #ffe3e8 0%, var(--bg) 40%, #fff 100%);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ---------- Dialog Card ---------- */
+    #popup {
+      background: var(--card);
+      width: min(92vw, 560px);
+      padding: 1.25rem 1.5rem 1.75rem;
+      border-radius: 14px;
+      box-shadow: 0 12px 30px var(--shadow);
+      border: 1px solid #f5c2c7;
+      text-align: center;
+      position: relative;
+      overflow: visible;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+    #popup.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #popup h1 {
+      margin: 0 0 .5rem;
+      font-size: clamp(1.25rem, 1rem + 1.2vw, 1.75rem);
+    }
+    #popup p {
+      margin: 0 0 1rem;
+      font-size: 1.05rem;
+    }
+
+    .btns {
+      display: inline-flex;
+      gap: .75rem;
+      margin-top: .25rem;
+      position: relative; /* only relevant for absolute children (we're using fixed for #no) */
+      min-height: 40px;
+    }
+
+    button {
+      border: none;
+      padding: .6rem 1.1rem;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .08s ease, box-shadow .2s ease, background .2s ease, color .2s ease, opacity .2s ease;
+      box-shadow: 0 6px 16px var(--shadow);
+    }
+
+    #yes {
+      background: var(--primary);
+      color: #fff;
+    }
+    #yes:hover { transform: translateY(-1px) scale(1.02); }
+
+    /* The No button moves in viewport coordinates (fixed) and stays above effects */
+    #no {
+      background: #f1f5f9;
+      color: #111827;
+      position: fixed;   /* key: fixed to viewport */
+      z-index: 25;       /* sits above any visual layers */
+    }
+
+    footer {
+      position: fixed;
+      bottom: .75rem;
+      left: 0; right: 0;
+      text-align: center;
+      font-size: .85rem;
+      color: var(--muted);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* ---------- Password Gate ---------- */
+    .gate-backdrop {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.35));
+      display: grid;
+      place-items: center;
+      z-index: 30;
+    }
+    .gate {
+      width: min(92vw, 420px);
+      background: #fff;
+      border-radius: 16px;
+      padding: 1.25rem 1.25rem 1rem;
+      box-shadow: 0 18px 45px rgba(0,0,0,.25);
+      border: 1px solid #f3d1d6;
+      text-align: center;
+      animation: pop .28s ease;
+    }
+    @keyframes pop {
+      from { transform: translateY(8px) scale(.98); opacity: 0; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .gate h2 { margin: 0 0 .25rem; font-size: 1.25rem; }
+    .gate p { margin: 0 0 1rem; color: var(--muted); }
+    .field {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: .5rem;
+      align-items: center;
+    }
+    input[type="password"] {
+      width: 100%;
+      padding: .7rem .9rem;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      outline: none;
+      font-size: 1rem;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    input[type="password"]:focus {
+      border-color: #fda4af;
+      box-shadow: 0 0 0 4px rgba(253, 164, 175, .25);
+    }
+    .gate .submit {
+      padding: .7rem 1rem;
+      border-radius: 12px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+    }
+    .msg { min-height: 1.25rem; margin-top: .5rem; font-size: .95rem; }
+    .ok { color: var(--ok); }
+    .err { color: var(--error); }
+
+    /* ---------- Confetti Canvas & Hearts ---------- */
+    #confetti, #hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;   /* don't block clicks */
+      z-index: 20;
+    }
+    #hearts { z-index: 10; }
+  </style>
+</head>
+<body>
+  <!-- Hearts layer -->
+  <canvas id="hearts"></canvas>
+  <!-- Confetti layer -->
+  <canvas id="confetti"></canvas>
+
+  <!-- Main content (hidden until password accepted) -->
+  <div id="popup" role="dialog" aria-labelledby="title" aria-describedby="prompt" aria-hidden="true">
+    <h1 id="title">Hey Juan 👋</h1>
+    <p id="prompt">Will you be my Valentine?</p>
+
+    <div class="btns">
+      <button id="yes" onclick="onYes()">Yes</button>
+      <button id="no" onmouseover="moveNo()">No</button>
+    </div>
+  </div>
+
+  <footer>Zone V‑Day • GitHub Pages demo</footer>
+
+  <!-- Password Gate -->
+  <div class="gate-backdrop" id="gate">
+    <div class="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+      <h2 id="gate-title">Enter Passcode</h2>
+      <p>Hint: something only we say 😉</p>
+      <form class="field" onsubmit="unlock(event)">
+        <input id="pwd" type="password" placeholder="Passcode" autocomplete="off" autofocus />
+        <button class="submit" type="submit">Open</button>
+      </form>
+      <div id="gate-msg" class="msg" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <script>
+    /***************
+     * Password Gate
+     ***************/
+    const REQUIRED_PASS = 'Blahhh'; // case-sensitive
+
+    function unlock(e) {
+      e.preventDefault();
+      const inp = document.getElementById('pwd');
+      const msg = document.getElementById('gate-msg');
+
+      if (inp.value.trim() === REQUIRED_PASS) {
+        msg.textContent = 'Access granted ♥';
+        msg.className = 'msg ok';
+        const gate = document.getElementById('gate');
+        gate.style.transition = 'opacity .35s ease, visibility 0s .35s';
+        gate.style.opacity = '0';
+        gate.style.visibility = 'hidden';
+
+        const popup = document.getElementById('popup');
+        popup.setAttribute('aria-hidden', 'false');
+        requestAnimationFrame(() => popup.classList.add('show'));
+      } else {
+        msg.textContent = 'Oops, that passcode is not it.';
+        msg.className = 'msg err';
+        inp.select();
+      }
+    }
+
+    /*******************
+     * No Button — viewport-safe movement
+     *******************/
+    function moveNo() {
+      const noBtn = document.getElementById('no');
+
+      // Position relative to the viewport
+      noBtn.style.position = 'fixed';
+
+      // Current button size
+      const btnW = noBtn.offsetWidth  || 80;
+      const btnH = noBtn.offsetHeight || 36;
+
+      // Safety margin from the edges
+      const margin = 12;
+
+      // Bounds so the entire button stays visible
+      const maxLeft = window.innerWidth  - btnW - margin;
+      const maxTop  = window.innerHeight - btnH - margin;
+
+      // Random position within [margin, max]
+      const left = Math.floor(Math.random() * (maxLeft - margin + 1)) + margin;
+      const top  = Math.floor(Math.random() * (maxTop  - margin + 1)) + margin;
+
+      noBtn.style.left = left + 'px';
+      noBtn.style.top  = top  + 'px';
+    }
+
+    // Keep No button in-bounds on resize/orientation change
+    window.addEventListener('resize', () => {
+      const noBtn = document.getElementById('no');
+      if (!noBtn) return;
+      const rect = noBtn.getBoundingClientRect();
+      const margin = 12;
+
+      const maxLeft = window.innerWidth  - rect.width  - margin;
+      const maxTop  = window.innerHeight - rect.height - margin;
+
+      const clampedLeft = Math.min(Math.max(rect.left, margin), maxLeft);
+      const clampedTop  = Math.min(Math.max(rect.top,  margin), maxTop);
+
+      noBtn.style.left = clampedLeft + 'px';
+      noBtn.style.top  = clampedTop  + 'px';
+    });
+
+    /****************
+     * Confetti Burst (dependency-free)
+     ****************/
+    const confettiCanvas = document.getElementById('confetti');
+    const cfx = confettiCanvas.getContext('2d');
+    let confettiPieces = [];
+
+    function sizeCanvas() {
+      confettiCanvas.width  = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+      heartsCanvas.width    = window.innerWidth;
+      heartsCanvas.height   = window.innerHeight;
+    }
+    window.addEventListener('resize', sizeCanvas);
+
+    function spawnConfetti(x, y, count = 200) {
+      for (let i = 0; i < count; i++) {
+        confettiPieces.push({
+          x, y,
+          vx: (Math.random() - 0.5) * 8,
+          vy: Math.random() * -6 - 4,
+          g: 0.18 + Math.random() * 0.05,
+          w: 8 + Math.random() * 6,
+          h: 4 + Math.random() * 3,
+          rot: Math.random() * Math.PI,
+          vr: (Math.random() - 0.5) * 0.2,
+          color: ['#e63946','#ffb3c1','#ffd166','#06d6a0','#118ab2'][Math.floor(Math.random()*5)],
+          life: 120 + Math.random()*60,
+        });
+      }
+    }
+
+    function updateConfetti() {
+      cfx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      confettiPieces = confettiPieces.filter(p => p.life > 0);
+      for (const p of confettiPieces) {
+        p.vy += p.g;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vr;
+        p.life--;
+        cfx.save();
+        cfx.translate(p.x, p.y);
+        cfx.rotate(p.rot);
+        cfx.fillStyle = p.color;
+        cfx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        cfx.restore();
+      }
+      requestAnimationFrame(updateConfetti);
+    }
+    updateConfetti();
+
+    function onYes() {
+      const rect = document.getElementById('popup').getBoundingClientRect();
+      const x = rect.left + rect.width/2;
+      const y = rect.top + rect.height/3;
+      spawnConfetti(x, y, 220);
+      setTimeout(() => alert('Yay! 💘 Can’t wait!'), 60);
+    }
+
+    /********************
+     * Floating Heart Trail
+     ********************/
+    const heartsCanvas = document.getElementById('hearts');
+    const htx = heartsCanvas.getContext('2d');
+    let hearts = [];
+
+    function heartParticle(x, y) {
+      const size = 10 + Math.random() * 10;
+      const hue = 350 + Math.random() * 20; // pink-red range
+      return {
+        x, y,
+        vx: (Math.random() - 0.5) * 0.8,
+        vy: -0.8 - Math.random() * 0.6,
+        a: 1,
+        size,
+        rot: Math.random() * Math.PI,
+        vr: (Math.random() - 0.5) * 0.06,
+        color: `hsl(${hue} 85% 60%)`
+      };
+    }
+
+    function drawHeart(ctx, x, y, size, rotation, color, alpha) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rotation);
+      ctx.scale(size/20, size/20);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = color;
+
+      ctx.beginPath();
+      ctx.moveTo(0, 6);
+      ctx.bezierCurveTo(0, 0, -10, 0, -10, 6);
+      ctx.bezierCurveTo(-10, 12, 0, 16, 0, 20);
+      ctx.bezierCurveTo(0, 16, 10, 12, 10, 6);
+      ctx.bezierCurveTo(10, 0, 0, 0, 0, 6);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function updateHearts() {
+      htx.clearRect(0, 0, heartsCanvas.width, heartsCanvas.height);
+      hearts = hearts.filter(h => h.a > 0.02);
+      for (const h of hearts) {
+        h.x += h.vx;
+        h.y += h.vy;
+        h.rot += h.vr;
+        h.a *= 0.97;
+        drawHeart(htx, h.x, h.y, h.size, h.rot, h.color, h.a);
+      }
+      requestAnimationFrame(updateHearts);
+    }
+    updateHearts();
+
+    window.addEventListener('mousemove', (e) => {
+      hearts.push(heartParticle(e.clientX, e.clientY));
+      if (Math.random() < 0.5) hearts.push(heartParticle(e.clientX, e.clientY));
+    });
+
+    // Initialize canvas sizes once DOM is ready
+    sizeCanvas();
+  </script>
+</body>
+</html>
