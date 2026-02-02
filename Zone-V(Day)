@@ -1,6 +1,45 @@
-<div id="popup">
- <p>Will you be my Valentine?,/p>
-<button on click="yes()">Yes</button>
-<button id="no"
-onmouseuser="moveNO()">No</button>
-</div>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Will you be my valentine?</title>
+  <style>
+    #popup {
+      font-family: system-ui, Arial, sans-serif;
+      padding: 1rem;
+    }
+    #no {
+      position: absolute; /* so left/top work immediately */
+    }
+  </style>
+</head>
+<body>
+  <div id="popup">
+    <p>Will you be my Valentine?</p>
+    <button onclick="yes()">Yes</button>
+    <button id="no" onmouseover="moveNO()">No</button>
+  </div>
+
+  <script>
+    function moveNO() {
+      const noBtn = document.getElementById('no');
+      // Make sure the button can move within the viewport
+      noBtn.style.position = 'absolute';
+
+      // Calculate a random position that keeps the button fully in view
+      const maxLeft = window.innerWidth - noBtn.offsetWidth;
+      const maxTop  = window.innerHeight - noBtn.offsetHeight;
+
+      const left = Math.max(0, Math.random() * maxLeft);
+      const top  = Math.max(0, Math.random() * maxTop);
+
+      noBtn.style.left = `${left}px`;
+      noBtn.style.top  = `${top}px`;
+    }
+
+    function yes() {
+      alert('Yay!');
+    }
+  </script>
+</body>
+</html>
