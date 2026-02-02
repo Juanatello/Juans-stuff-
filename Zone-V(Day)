@@ -2,36 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Will you be my valentine?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Valentine</title>
   <style>
-    #popup {
-      font-family: system-ui, Arial, sans-serif;
-      padding: 1rem;
-    }
-    #no {
-      position: absolute; /* so left/top work immediately */
-    }
+    /* Optional styling so the moving button stays visible initially */
+    body { font-family: system-ui, Arial, sans-serif; }
+    #popup { padding: 1rem; }
+    #no { position: absolute; } /* allows left/top to take effect */
   </style>
 </head>
 <body>
   <div id="popup">
     <p>Will you be my Valentine?</p>
     <button onclick="yes()">Yes</button>
-    <button id="no" onmouseover="moveNO()">No</button>
+    <button id="no" onmouseover="moveNo()">No</button>
   </div>
 
   <script>
-    function moveNO() {
+    function moveNo() {
       const noBtn = document.getElementById('no');
-      // Make sure the button can move within the viewport
+
+      // Make sure it can move (absolute positioning)
       noBtn.style.position = 'absolute';
 
-      // Calculate a random position that keeps the button fully in view
-      const maxLeft = window.innerWidth - noBtn.offsetWidth;
+      // Keep the button fully in view by subtracting its size
+      const maxLeft = window.innerWidth  - noBtn.offsetWidth;
       const maxTop  = window.innerHeight - noBtn.offsetHeight;
 
-      const left = Math.max(0, Math.random() * maxLeft);
-      const top  = Math.max(0, Math.random() * maxTop);
+      const left = Math.random() * Math.max(0, maxLeft);
+      const top  = Math.random() * Math.max(0, maxTop);
 
       noBtn.style.left = `${left}px`;
       noBtn.style.top  = `${top}px`;
@@ -43,3 +42,4 @@
   </script>
 </body>
 </html>
+``
