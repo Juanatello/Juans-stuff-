@@ -60,7 +60,7 @@
       display: inline-flex;
       gap: .75rem;
       margin-top: .25rem;
-      position: relative; /* only relevant for absolute children (we're using fixed for #no) */
+      position: relative;
       min-height: 40px;
     }
 
@@ -80,12 +80,10 @@
     }
     #yes:hover { transform: translateY(-1px) scale(1.02); }
 
-    /* The No button moves in viewport coordinates (fixed) and stays above effects */
+    /* NOTE: No explicit positioning here; we switch #no to fixed in JS on first move */
     #no {
       background: #f1f5f9;
       color: #111827;
-      position: fixed;   /* key: fixed to viewport */
-      z-index: 25;       /* sits above any visual layers */
     }
 
     footer {
@@ -177,7 +175,12 @@
 
     <div class="btns">
       <button id="yes" onclick="onYes()">Yes</button>
-      <button id="no" onmouseover="moveNo()">No</button>
+      <!-- Trigger movement on mouse, pointer, and touch -->
+      <button id="no"
+              onmouseover="moveNo(event)"
+              onmouseenter="moveNo(event)"
+              onpointerenter="moveNo(event)"
+              ontouchstart="moveNo(event)">No</button>
     </div>
   </div>
 
@@ -190,209 +193,3 @@
       <p>Hint: something only we say 😉</p>
       <form class="field" onsubmit="unlock(event)">
         <input id="pwd" type="password" placeholder="Passcode" autocomplete="off" autofocus />
-        <button class="submit" type="submit">Open</button>
-      </form>
-      <div id="gate-msg" class="msg" aria-live="polite"></div>
-    </div>
-  </div>
-
-  <script>
-    /***************
-     * Password Gate
-     ***************/
-    const REQUIRED_PASS = 'Blahhh'; // case-sensitive
-
-    function unlock(e) {
-      e.preventDefault();
-      const inp = document.getElementById('pwd');
-      const msg = document.getElementById('gate-msg');
-
-      if (inp.value.trim() === REQUIRED_PASS) {
-        msg.textContent = 'Access granted ♥';
-        msg.className = 'msg ok';
-        const gate = document.getElementById('gate');
-        gate.style.transition = 'opacity .35s ease, visibility 0s .35s';
-        gate.style.opacity = '0';
-        gate.style.visibility = 'hidden';
-
-        const popup = document.getElementById('popup');
-        popup.setAttribute('aria-hidden', 'false');
-        requestAnimationFrame(() => popup.classList.add('show'));
-      } else {
-        msg.textContent = 'Oops, that passcode is not it.';
-        msg.className = 'msg err';
-        inp.select();
-      }
-    }
-
-    /*******************
-     * No Button — viewport-safe movement
-     *******************/
-    function moveNo() {
-      const noBtn = document.getElementById('no');
-
-      // Position relative to the viewport
-      noBtn.style.position = 'fixed';
-
-      // Current button size
-      const btnW = noBtn.offsetWidth  || 80;
-      const btnH = noBtn.offsetHeight || 36;
-
-      // Safety margin from the edges
-      const margin = 12;
-
-      // Bounds so the entire button stays visible
-      const maxLeft = window.innerWidth  - btnW - margin;
-      const maxTop  = window.innerHeight - btnH - margin;
-
-      // Random position within [margin, max]
-      const left = Math.floor(Math.random() * (maxLeft - margin + 1)) + margin;
-      const top  = Math.floor(Math.random() * (maxTop  - margin + 1)) + margin;
-
-      noBtn.style.left = left + 'px';
-      noBtn.style.top  = top  + 'px';
-    }
-
-    // Keep No button in-bounds on resize/orientation change
-    window.addEventListener('resize', () => {
-      const noBtn = document.getElementById('no');
-      if (!noBtn) return;
-      const rect = noBtn.getBoundingClientRect();
-      const margin = 12;
-
-      const maxLeft = window.innerWidth  - rect.width  - margin;
-      const maxTop  = window.innerHeight - rect.height - margin;
-
-      const clampedLeft = Math.min(Math.max(rect.left, margin), maxLeft);
-      const clampedTop  = Math.min(Math.max(rect.top,  margin), maxTop);
-
-      noBtn.style.left = clampedLeft + 'px';
-      noBtn.style.top  = clampedTop  + 'px';
-    });
-
-    /****************
-     * Confetti Burst (dependency-free)
-     ****************/
-    const confettiCanvas = document.getElementById('confetti');
-    const cfx = confettiCanvas.getContext('2d');
-    let confettiPieces = [];
-
-    function sizeCanvas() {
-      confettiCanvas.width  = window.innerWidth;
-      confettiCanvas.height = window.innerHeight;
-      heartsCanvas.width    = window.innerWidth;
-      heartsCanvas.height   = window.innerHeight;
-    }
-    window.addEventListener('resize', sizeCanvas);
-
-    function spawnConfetti(x, y, count = 200) {
-      for (let i = 0; i < count; i++) {
-        confettiPieces.push({
-          x, y,
-          vx: (Math.random() - 0.5) * 8,
-          vy: Math.random() * -6 - 4,
-          g: 0.18 + Math.random() * 0.05,
-          w: 8 + Math.random() * 6,
-          h: 4 + Math.random() * 3,
-          rot: Math.random() * Math.PI,
-          vr: (Math.random() - 0.5) * 0.2,
-          color: ['#e63946','#ffb3c1','#ffd166','#06d6a0','#118ab2'][Math.floor(Math.random()*5)],
-          life: 120 + Math.random()*60,
-        });
-      }
-    }
-
-    function updateConfetti() {
-      cfx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-      confettiPieces = confettiPieces.filter(p => p.life > 0);
-      for (const p of confettiPieces) {
-        p.vy += p.g;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.rot += p.vr;
-        p.life--;
-        cfx.save();
-        cfx.translate(p.x, p.y);
-        cfx.rotate(p.rot);
-        cfx.fillStyle = p.color;
-        cfx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-        cfx.restore();
-      }
-      requestAnimationFrame(updateConfetti);
-    }
-    updateConfetti();
-
-    function onYes() {
-      const rect = document.getElementById('popup').getBoundingClientRect();
-      const x = rect.left + rect.width/2;
-      const y = rect.top + rect.height/3;
-      spawnConfetti(x, y, 220);
-      setTimeout(() => alert('Yay! 💘 Can’t wait!'), 60);
-    }
-
-    /********************
-     * Floating Heart Trail
-     ********************/
-    const heartsCanvas = document.getElementById('hearts');
-    const htx = heartsCanvas.getContext('2d');
-    let hearts = [];
-
-    function heartParticle(x, y) {
-      const size = 10 + Math.random() * 10;
-      const hue = 350 + Math.random() * 20; // pink-red range
-      return {
-        x, y,
-        vx: (Math.random() - 0.5) * 0.8,
-        vy: -0.8 - Math.random() * 0.6,
-        a: 1,
-        size,
-        rot: Math.random() * Math.PI,
-        vr: (Math.random() - 0.5) * 0.06,
-        color: `hsl(${hue} 85% 60%)`
-      };
-    }
-
-    function drawHeart(ctx, x, y, size, rotation, color, alpha) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(rotation);
-      ctx.scale(size/20, size/20);
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = color;
-
-      ctx.beginPath();
-      ctx.moveTo(0, 6);
-      ctx.bezierCurveTo(0, 0, -10, 0, -10, 6);
-      ctx.bezierCurveTo(-10, 12, 0, 16, 0, 20);
-      ctx.bezierCurveTo(0, 16, 10, 12, 10, 6);
-      ctx.bezierCurveTo(10, 0, 0, 0, 0, 6);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.restore();
-    }
-
-    function updateHearts() {
-      htx.clearRect(0, 0, heartsCanvas.width, heartsCanvas.height);
-      hearts = hearts.filter(h => h.a > 0.02);
-      for (const h of hearts) {
-        h.x += h.vx;
-        h.y += h.vy;
-        h.rot += h.vr;
-        h.a *= 0.97;
-        drawHeart(htx, h.x, h.y, h.size, h.rot, h.color, h.a);
-      }
-      requestAnimationFrame(updateHearts);
-    }
-    updateHearts();
-
-    window.addEventListener('mousemove', (e) => {
-      hearts.push(heartParticle(e.clientX, e.clientY));
-      if (Math.random() < 0.5) hearts.push(heartParticle(e.clientX, e.clientY));
-    });
-
-    // Initialize canvas sizes once DOM is ready
-    sizeCanvas();
-  </script>
-</body>
-</html>
